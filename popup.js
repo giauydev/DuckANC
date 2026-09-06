@@ -8,6 +8,7 @@ const DEFAULT_POPUP_SETTINGS = {
     restoreDuration: 900,
     sfxDelay: 500,
     silenceThreshold: 10,
+    silenceRestoreVolume: 50,
     targetTabId: null,
     targetTitle: "",
     targetUrl: "",
@@ -42,6 +43,7 @@ function applySettingsToUI() {
     setCustomUI("blurFrequency", settings.blurFrequency, "Hz");
     setCustomUI("sfxDelay", settings.sfxDelay, "ms");
     setCustomUI("silenceThreshold", settings.silenceThreshold, "s");
+    setCustomUI("silenceRestoreVolume", settings.silenceRestoreVolume, "%");
 
     extensionEnabled = Boolean(settings.enabled);
     targetPlaying = Boolean(settings.targetPlaying);
@@ -122,7 +124,8 @@ async function save() {
         duckDuration: Number(settings.duckDuration),
         restoreDuration: Number(settings.restoreDuration),
         sfxDelay: Number(settings.sfxDelay),
-        silenceThreshold: Number(settings.silenceThreshold)
+        silenceThreshold: Number(settings.silenceThreshold),
+        silenceRestoreVolume: Number(settings.silenceRestoreVolume)
     };
 
     settingsSaveInFlight = true;
@@ -226,9 +229,10 @@ function setupCustomSettings() {
     const controls = [
         ["duckDuration", 50, 3000, "ms"],
         ["restoreDuration", 50, 3000, "ms"],
-        ["blurFrequency", 100, 22000, "Hz"],
+        ["blurFrequency", 100, 1800, "Hz"],
         ["sfxDelay", 0, 2000, "ms"],
-        ["silenceThreshold", 1, 60, "s"]
+        ["silenceThreshold", 1, 60, "s"],
+        ["silenceRestoreVolume", 0, 100, "%"]
     ];
 
     for (const [id, min, max, unit] of controls) {
@@ -255,7 +259,8 @@ function setupCustomSettings() {
             duckDuration: DEFAULT_POPUP_SETTINGS.duckDuration,
             restoreDuration: DEFAULT_POPUP_SETTINGS.restoreDuration,
             sfxDelay: DEFAULT_POPUP_SETTINGS.sfxDelay,
-            silenceThreshold: DEFAULT_POPUP_SETTINGS.silenceThreshold
+            silenceThreshold: DEFAULT_POPUP_SETTINGS.silenceThreshold,
+            silenceRestoreVolume: DEFAULT_POPUP_SETTINGS.silenceRestoreVolume
         };
 
         applySettingsToUI();
