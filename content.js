@@ -212,7 +212,8 @@
         targetVolume,
         duration,
         shouldBlur,
-        blurFrequency
+        blurFrequency,
+        instant = false
     ) {
 
         const state =
@@ -263,13 +264,18 @@
 
 
         
-        scheduleEase(
-            state.gain.gain,
-            currentGain,
-            target,
-            now,
-            seconds
-        );
+        if (instant) {
+            state.gain.gain.cancelScheduledValues(now);
+            state.gain.gain.setValueAtTime(target, now);
+        } else {
+            scheduleEase(
+                state.gain.gain,
+                currentGain,
+                target,
+                now,
+                seconds
+            );
+        }
 
         
         if (target === 0) {
@@ -308,24 +314,39 @@
                     )
                 );
 
-
-            scheduleEase(
-                state.filter.frequency,
-                currentFrequency,
-                frequency,
-                now,
-                seconds
-            );
+            if (instant) {
+                state.filter.frequency.cancelScheduledValues(now);
+                state.filter.frequency.setValueAtTime(
+                    frequency,
+                    now
+                );
+            } else {
+                scheduleEase(
+                    state.filter.frequency,
+                    currentFrequency,
+                    frequency,
+                    now,
+                    seconds
+                );
+            }
 
         } else {
 
-            scheduleEase(
-                state.filter.frequency,
-                currentFrequency,
-                22000,
-                now,
-                seconds
-            );
+            if (instant) {
+                state.filter.frequency.cancelScheduledValues(now);
+                state.filter.frequency.setValueAtTime(
+                    22000,
+                    now
+                );
+            } else {
+                scheduleEase(
+                    state.filter.frequency,
+                    currentFrequency,
+                    22000,
+                    now,
+                    seconds
+                );
+            }
         }
 
 
@@ -459,6 +480,11 @@
             ) ||
             DEFAULT_BLUR_FREQUENCY;
 
+        const instant =
+            Boolean(
+                message.instant
+            );
+
 
         for (
             const element
@@ -470,7 +496,8 @@
                 targetVolume,
                 duration,
                 shouldBlur,
-                blurFrequency
+                blurFrequency,
+                instant
             );
         }
     }
@@ -605,7 +632,8 @@
         volume: 0.15,
         duration: 900,
         blur: true,
-        blurFrequency: 100
+        blurFrequency: 100,
+        instant: false
     };
 
 
@@ -670,7 +698,8 @@
                                 lastDuckConfig.volume,
                                 lastDuckConfig.duration,
                                 lastDuckConfig.blur,
-                                lastDuckConfig.blurFrequency
+                                lastDuckConfig.blurFrequency,
+                                lastDuckConfig.instant
                             );
                         }
                     }
@@ -735,7 +764,12 @@
                         Number(
                             message.blurFrequency
                         ) ||
-                        DEFAULT_BLUR_FREQUENCY
+                        DEFAULT_BLUR_FREQUENCY,
+
+                    instant:
+                        Boolean(
+                            message.instant
+                        )
                 };
 
 
