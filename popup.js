@@ -4,7 +4,7 @@ const DEFAULT_POPUP_SETTINGS = {
     soundEffects: true,
     audioBlur: true,
     blurFrequency: 100,
-    duckDuration: 1000,
+    duckDuration: 950,
     restoreDuration: 900,
     sfxDelay: 500,
     silenceThreshold: 10,
