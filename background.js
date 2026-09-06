@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS = {
     sfxDelay: 500,
 
     
-    duckDuration: 1000,
+    duckDuration: 950,
     restoreDuration: 900,
 
     
@@ -84,24 +84,30 @@ function scheduleLongSilenceSFX(tabId) {
                 );
 
                 if (token !== silenceToken || !settings.enabled) {
-                    await restoreAllTabs(220);
+                    await restoreAllTabs(220, false);
                     return;
                 }
 
-                // The normal silence state is already partially restored.
-                // At the end of the silence threshold, fully restore before playing the SFX.
-                await restoreAllTabs(settings.restoreDuration);
-
-                if (token !== silenceToken || !settings.enabled) {
-                    await restoreAllTabs(220);
-                    return;
-                }
-
+                // Play the OFF SFX while the existing duck/blur state is still stable.
+                // Wait 1s before restoring the audio so the SFX is not caught by the blur ease.
                 const played = await playAirPodsSFX("off");
 
+                if (token !== silenceToken || !settings.enabled) {
+                    await restoreAllTabs(220, false);
+                    return;
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
                 if (token !== silenceToken || !settings.enabled) {
-                    await restoreAllTabs(220);
+                    await restoreAllTabs(220, false);
+                    return;
+                }
+
+                await restoreAllTabs(settings.restoreDuration, false);
+
+                if (token !== silenceToken || !settings.enabled) {
+                    await restoreAllTabs(220, false);
                     return;
                 }
 
@@ -112,7 +118,7 @@ function scheduleLongSilenceSFX(tabId) {
             } catch (error) {
                 console.warn("[Audio Ducking] Long-silence SFX failed:", error);
                 
-                await restoreAllTabs(220);
+                await restoreAllTabs(220, false);
             }
         }).catch(error => {
             console.error("[Audio Ducking] Long-silence transition error:", error);
@@ -378,7 +384,7 @@ function rememberTab(tab) {
 
 
 
-async function duckTab(tab) {
+async function duckTab(tab, options = {}) {
     if (!tab?.id) {
         return;
     }
@@ -407,7 +413,9 @@ async function duckTab(tab) {
             duration:
                 settings.duckDuration,
             blur:
-                settings.audioBlur,
+                options.blur !== undefined
+                    ? Boolean(options.blur)
+                    : settings.audioBlur,
             blurFrequency:
                 settings.blurFrequency
         }
@@ -419,13 +427,13 @@ async function duckTab(tab) {
 
 
 
-async function duckAllTabs() {
+async function duckAllTabs(options = {}) {
     const tabs =
         await chrome.tabs.query({});
 
     await Promise.all(
         tabs.map(tab =>
-            duckTab(tab)
+            duckTab(tab, options)
         )
     );
 }
@@ -435,7 +443,7 @@ async function duckAllTabs() {
 
 
 
-async function restoreTab(tabId, duration = settings.restoreDuration) {
+async function restoreTab(tabId, duration = settings.restoreDuration, useBlurEase = true) {
     const oldState =
         modifiedTabs.get(tabId);
 
@@ -488,21 +496,21 @@ async function restoreTab(tabId, duration = settings.restoreDuration) {
 
 
 
-async function restoreAllTabs(duration = settings.restoreDuration) {
+async function restoreAllTabs(duration = settings.restoreDuration, useBlurEase = true) {
     const ids = [
         ...modifiedTabs.keys()
     ];
 
     await Promise.all(
         ids.map(id =>
-            restoreTab(id, duration)
+            restoreTab(id, duration, useBlurEase)
         )
     );
 
     modifiedTabs.clear();
 }
 
-async function restoreTabPartial(tabId, volumeRatio, duration = settings.restoreDuration) {
+async function restoreTabPartial(tabId, volumeRatio, duration = settings.restoreDuration, useBlurEase = true) {
     if (!modifiedTabs.has(tabId)) {
         return;
     }
@@ -513,12 +521,13 @@ async function restoreTabPartial(tabId, volumeRatio, duration = settings.restore
             type: "RESTORE_PARTIAL",
             volumeRatio:
                 clamp(Number(volumeRatio), 0, 100) / 100,
-            duration
+            duration,
+            blur: useBlurEase
         }
     );
 }
 
-async function restoreAllTabsPartial(volumeRatio, duration = settings.restoreDuration) {
+async function restoreAllTabsPartial(volumeRatio, duration = settings.restoreDuration, useBlurEase = true) {
     const ids = [
         ...modifiedTabs.keys()
     ];
@@ -528,7 +537,8 @@ async function restoreAllTabsPartial(volumeRatio, duration = settings.restoreDur
             restoreTabPartial(
                 id,
                 volumeRatio,
-                duration
+                duration,
+                useBlurEase
             )
         )
     );
@@ -577,7 +587,8 @@ function updateState(reason = "unknown") {
                 
                 await restoreAllTabsPartial(
                     settings.silenceRestoreVolume,
-                    settings.restoreDuration
+                    settings.restoreDuration,
+                    false
                 );
                 partialSilenceRestoreActive = true;
                 scheduleLongSilenceSFX(newTargetId);
