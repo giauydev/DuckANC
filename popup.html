@@ -455,7 +455,7 @@
                     <span data-i18n="ancFreq">ANC frequency</span>
                     <span id="blurFrequencyValue" class="value highlight">100 Hz</span>
                 </div>
-                <input id="blurFrequency" type="range" min="100" max="22000" step="100" value="100">
+                <input id="blurFrequency" type="range" min="100" max="1800" step="10" value="100">
                 <div class="hint" data-i18n="ancFreqDesc">Thấp hơn = cách âm mạnh hơn.</div>
             </div>
 
@@ -475,6 +475,14 @@
                 </div>
                 <input id="silenceThreshold" type="range" min="1" max="60" step="1" value="10">
                 <div class="hint" data-i18n="silenceThresholdDesc">Thời gian im lặng liên tục trước khi chạy ANC-off SFX.</div>
+            </div>
+            <div class="custom-setting">
+                <div class="custom-line">
+                    <span data-i18n="silenceRestoreVolume">Âm lượng trước SFX</span>
+                    <span id="silenceRestoreVolumeValue" class="value highlight">50%</span>
+                </div>
+                <input id="silenceRestoreVolume" type="range" min="0" max="100" step="5" value="50">
+                <div class="hint" data-i18n="silenceRestoreVolumeDesc">Sau ngưỡng im lặng, âm lượng chỉ khôi phục đến mức này trước khi phát SFX.</div>
             </div>
         </div>
     </div>
