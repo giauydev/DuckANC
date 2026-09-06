@@ -1,3 +1,5 @@
+
+[🇺🇸 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
 # DuckANC
 
 **Automatically reduce audio from other tabs and stay focused on studying and working — with an AirPods-style ANC effect.**
@@ -83,4 +85,3 @@ See the `LICENSE` file for license information.
 
 ---
 
-[🇺🇸 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
