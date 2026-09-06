@@ -21,7 +21,7 @@
         900;
 
     const DEFAULT_BLUR_FREQUENCY =
-        1800;
+        100;
 
 
     
@@ -300,7 +300,7 @@
                 Math.max(
                     100,
                     Math.min(
-                        22000,
+                        1800,
                         Number(
                             blurFrequency
                         ) ||
@@ -499,6 +499,82 @@
     
     
 
+    function restoreAllPartial(
+        message
+    ) {
+        const duration =
+            Number(
+                message.duration
+            ) ||
+            DEFAULT_RESTORE_DURATION;
+
+        const volumeRatio =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    Number(message.volumeRatio)
+                )
+            );
+
+        for (
+            const element
+            of mediaStates.keys()
+        ) {
+            const state =
+                mediaStates.get(
+                    element
+                );
+
+            if (!state) {
+                continue;
+            }
+
+            const ctx =
+                getAudioContext();
+
+            const now =
+                ctx.currentTime;
+
+            const seconds =
+                Math.max(
+                    0.05,
+                    Number(duration) /
+                        1000
+                );
+
+            scheduleEase(
+                state.gain.gain,
+                state.gain.gain.value,
+                state.originalGain * volumeRatio,
+                now,
+                seconds
+            );
+
+            scheduleEase(
+                state.filter.frequency,
+                state.filter.frequency.value,
+                state.originalFrequency,
+                now,
+                seconds
+            );
+
+            if (state.hardMuted) {
+                element.volume =
+                    Math.max(0, Math.min(1, Number(state.originalElementVolume)));
+                element.muted = state.originalElementMuted;
+                state.hardMuted = false;
+            }
+
+            state.ducked = true;
+        }
+    }
+
+
+
+
+
+
     let currentlyDucked =
         false;
 
@@ -506,7 +582,7 @@
         volume: 0.15,
         duration: 900,
         blur: true,
-        blurFrequency: 1800
+        blurFrequency: 100
     };
 
 
@@ -667,6 +743,21 @@
                     message
                 );
 
+
+                sendResponse({
+                    success: true
+                });
+
+                return true;
+            }
+
+            if (
+                message.type ===
+                "RESTORE_PARTIAL"
+            ) {
+                restoreAllPartial(
+                    message
+                );
 
                 sendResponse({
                     success: true
