@@ -15,7 +15,7 @@
     
 
     const DEFAULT_DUCK_DURATION =
-        1000;
+        950;
 
     const DEFAULT_RESTORE_DURATION =
         900;
@@ -340,7 +340,8 @@
 
     function restoreMedia(
         element,
-        duration
+        duration,
+        useBlurEase = true
     ) {
 
         const state =
@@ -396,13 +397,21 @@
             seconds
         );
 
-        scheduleEase(
-            state.filter.frequency,
-            currentFrequency,
-            state.originalFrequency,
-            now,
-            seconds
-        );
+        if (useBlurEase) {
+            scheduleEase(
+                state.filter.frequency,
+                currentFrequency,
+                state.originalFrequency,
+                now,
+                seconds
+            );
+        } else {
+            state.filter.frequency.cancelScheduledValues(now);
+            state.filter.frequency.setValueAtTime(
+                state.originalFrequency,
+                now
+            );
+        }
 
         if (state.hardMuted) {
             element.volume =
@@ -481,6 +490,8 @@
             ) ||
             DEFAULT_RESTORE_DURATION;
 
+        const useBlurEase =
+            message.blur !== false;
 
         for (
             const element
@@ -489,7 +500,8 @@
 
             restoreMedia(
                 element,
-                duration
+                duration,
+                useBlurEase
             );
         }
     }
@@ -516,6 +528,9 @@
                     Number(message.volumeRatio)
                 )
             );
+
+        const useBlurEase =
+            message.blur !== false;
 
         for (
             const element
@@ -551,13 +566,21 @@
                 seconds
             );
 
-            scheduleEase(
-                state.filter.frequency,
-                state.filter.frequency.value,
-                state.originalFrequency,
-                now,
-                seconds
-            );
+            if (useBlurEase) {
+                scheduleEase(
+                    state.filter.frequency,
+                    state.filter.frequency.value,
+                    state.originalFrequency,
+                    now,
+                    seconds
+                );
+            } else {
+                state.filter.frequency.cancelScheduledValues(now);
+                state.filter.frequency.setValueAtTime(
+                    state.originalFrequency,
+                    now
+                );
+            }
 
             if (state.hardMuted) {
                 element.volume =
