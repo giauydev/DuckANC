@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckANC</title>
+
+    <script type="module" src="model-viewer.min.js"></script>
+
+    <style>
+        :root {
+            /* Light Theme (Mặc định) */
+            --bg-color: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --separator: #E5E5EA;
+            --text-main: #000000;
+            --text-secondary: #8E8E93;
+            --model-bg: radial-gradient(circle at 50% 42%, #E5E5EA 0%, #D1D1D6 38%, #C7C7CC 68%, #AEAEB2 100%);
+            --btn-bg: rgba(0,0,0,0.05);
+            --btn-hover: rgba(0,0,0,0.1);
+            
+            --accent-blue: #0A84FF;
+            --accent-green: #34C759;
+            --accent-red: #FF3B30;
+            --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --bg-color: #000000;
+            --card-bg: #1C1C1E;
+            --separator: #38383A;
+            --text-main: #FFFFFF;
+            --text-secondary: #8E8E93;
+            --model-bg: radial-gradient(circle at 50% 42%, #313136 0%, #242428 38%, #1C1C1E 68%, #111113 100%);
+            --btn-bg: rgba(255,255,255,0.1);
+            --btn-hover: rgba(255,255,255,0.2);
+            
+            --accent-green: #32D74B;
+            --accent-red: #FF453A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 360px;
+            padding: 16px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+            transition: background 0.3s var(--ease), color 0.3s var(--ease);
+        }
+/* ================= LANG DROPDOWN ================= */
+        .lang-menu-wrapper {
+            position: relative;
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--separator);
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            width: 140px;
+            overflow: hidden;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+            pointer-events: none;
+        }
+
+        .lang-dropdown.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .lang-option:hover {
+            background: var(--btn-bg);
+        }
+
+        .lang-option.active {
+            color: var(--accent-blue);
+        }
+
+        .flag-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 1px rgba(150,150,150,0.2);
+            display: block;
+        }
+        /* ================= SUPPORT BOX ================= */
+.support-row {
+    text-decoration: none;
+    color: var(--text-main);
+    transition: background 0.2s var(--ease);
+}
+.support-row:hover {
+    background: var(--btn-bg);
+}
+.support-row:active {
+    background: var(--btn-hover);
+}
+        /* ================= HEADER ================= */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .title-area h2 {
+            font-size: 26px;
+            line-height: 1.1;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--btn-bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .icon-btn:hover { background: var(--btn-hover); }
+        .icon-btn:active { transform: scale(0.9); }
+        .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+        /* ================= 3D MODEL ================= */
+        .model-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            margin-bottom: 14px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: var(--model-bg);
+            border: 1px solid rgba(150,150,150,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: filter 0.5s var(--ease), opacity 0.5s var(--ease), transform 0.5s var(--ease), background 0.3s;
+        }
+
+        .model-wrapper.blurred { filter: blur(10px) grayscale(45%); opacity: 0.38; transform: scale(0.96); }
+        
+        model-viewer {
+            width: 100%; height: 100%; background: transparent;
+            --poster-color: transparent;
+            --progress-bar-color: var(--accent-blue);
+            --interaction-prompt-display: none;
+        }
+
+        /* ================= CARD ================= */
+        
+        .card-group {
+            margin-bottom: 12px;
+            overflow: hidden;
+            border-radius: 13px;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid rgba(150,150,150,0.1);
+            transition: background 0.3s, border 0.3s;
+        }
+
+        .list-row {
+            min-height: 50px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 0.5px solid var(--separator);
+        }
+        .list-row:last-child { border-bottom: none; }
+
+        .label { font-size: 15px; font-weight: 500; }
+        .value { color: var(--text-secondary); font-size: 14px; text-align: right; }
+        .value.highlight { color: var(--accent-blue); font-weight: 600; }
+        
+        .hint { margin-top: 3px; font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+
+        /* ================= TARGET INFO ================= */
+        .target-info { padding: 11px 16px 14px; }
+        .target-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .target-url { color: var(--text-secondary); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #636366; display: inline-block; margin-right: 5px;}
+        .status-dot.playing { background: var(--accent-green); box-shadow: 0 0 8px rgba(50,215,75,0.55); }
+
+        /* ================= SWITCH ================= */
+        .switch { position: relative; width: 51px; height: 31px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; inset: 0; border-radius: 99px; background: #E5E5EA; cursor: pointer; transition: 0.3s; }
+        [data-theme="dark"] .slider { background: #39393D; }
+        .slider::before { content: ""; position: absolute; width: 27px; height: 27px; left: 2px; bottom: 2px; border-radius: 50%; background: #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.3s; }
+        .switch input:checked + .slider { background: var(--accent-green); }
+        .switch input:checked + .slider::before { transform: translateX(20px); }
+
+        /* ================= RANGE ================= */
+        input[type="range"] { -webkit-appearance: none; width: calc(100% - 32px); height: 24px; margin: 0 16px 9px; background: transparent; cursor: pointer; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; border-radius: 99px; background: var(--separator); }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%; background: #FFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: 0.15s; }
+        input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.1); }
+
+        /* ================= CUSTOM SETTINGS & FOOTER ================= */
+        .note { padding: 0 16px 13px; color: var(--text-secondary); font-size: 12px; line-height: 1.4; }
+        .footer-note { text-align: center; font-size: 11px; padding-top: 10px; }
+        .custom-header { cursor: pointer; user-select: none; }
+        .custom-header > div:first-child { min-width: 0; }
+        .custom-header-actions { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+        .custom-chevron, .custom-reset {
+            width: 18px; height: 18px; flex: 0 0 18px;
+            color: var(--text-secondary);
+        }
+        .custom-chevron { transition: transform 0.25s var(--ease), color 0.2s; }
+        .custom-chevron path {
+            fill: none; stroke: currentColor; stroke-width: 2;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+        .custom-reset {
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 0; border-radius: 6px; padding: 0; background: transparent;
+            cursor: pointer; transition: color 0.2s, background 0.2s, transform 0.15s;
+        }
+        .custom-reset:hover { color: var(--text-main); background: var(--btn-bg); }
+        .custom-reset:active { transform: rotate(-28deg) scale(0.92); }
+        .custom-reset svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+        .custom-header:hover .custom-chevron { color: var(--text-main); }
+        .custom-settings.open .custom-chevron { transform: rotate(180deg); }
+        .custom-panel { padding: 3px 16px 14px; }
+        .custom-setting { margin-top: 10px; }
+        .custom-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; margin-bottom: 2px; }
+        .custom-line > span:first-child { min-width: 0; }
+        .custom-setting input[type="range"] { width: 100%; margin: 4px 0 0; }
+        .custom-setting .hint { margin-bottom: 0; }
+        @media (max-width: 380px) {
+            .custom-line { font-size: 12.5px; }
+            .custom-panel { padding-left: 14px; padding-right: 14px; }
+        }
+        
+
+    </style>
+</head>
+<body data-theme="dark"> <div class="app-header">
+        <div class="title-area">
+            <h2>DuckANC</h2>
+            <span class="subtitle" data-i18n="desc">by giauydev v4.1.4</span>
+        </div>
+        <div class="header-actions">
+            
+            <div class="lang-menu-wrapper">
+                <button id="langToggle" class="icon-btn" title="Change Language">
+                    
+                </button>
+                
+                <div id="langDropdown" class="lang-dropdown">
+                    
+                    <div class="lang-option" data-lang="vi">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" class="flag-icon">
+                            <rect width="900" height="600" fill="#da251d"/>
+                            <polygon points="450,114 532,365 318,210 582,210 368,365" fill="#ff0"/>
+                        </svg>
+                        <span>Tiếng Việt</span>
+                    </div>
+
+                    
+                    <div class="lang-option" data-lang="en">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" class="flag-icon">
+                            <clipPath id="uk-clip"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+                            <rect width="60" height="30" fill="#012169"/>
+                            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+                            <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-clip)" stroke="#C8102E" stroke-width="4"/>
+                            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+                            <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+                        </svg>
+                        <span>English</span>
+                    </div>
+                </div>
+            </div>
+
+            
+            <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="modelContainer" class="model-wrapper">
+        <model-viewer id="headphoneModel" src="models/headphones-d3e940.glb" alt="3D headphones" auto-rotate rotation-per-second="18deg" disable-zoom shadow-intensity="1" exposure="1" camera-orbit="0deg 75deg 105%" field-of-view="30deg" interaction-prompt="none" loading="eager"></model-viewer>
+    </div>
+     <div class="card-group">
+    <a href="https://ko-fi.com/giauydev" target="_blank" class="list-row support-row">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5E5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+            </svg>
+            <span class="label" data-i18n="supportMe">Ủng hộ tôi 1 ly cà phê</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+    </a>
+
+</div>
+    <div class="card-group">
+        <div class="list-row">
+            <span class="label" data-i18n="extStatus">Extension</span>
+            <label class="switch">
+                <input id="enabled" type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    
+    <div class="card-group">
+        <div class="list-row">
+            <span class="label" data-i18n="activeTarget">Active target</span>
+            <div style="display: flex; align-items: center;">
+                <span id="statusDot" class="status-dot"></span>
+                <span id="status" class="value" data-i18n="silent">Silent</span>
+            </div>
+        </div>
+        <div class="target-info">
+            <div id="targetName" class="target-name" data-i18n="loading">Đang tải...</div>
+            <div id="targetUrl" class="target-url">-</div>
+            <div style="margin-top:8px; display:inline-block; font-size:10px; font-weight:700; color:var(--accent-blue); background:rgba(10,132,255,0.15); padding:4px 8px; border-radius:10px;" data-i18n="activeTab">
+                • ACTIVE TAB
+            </div>
+        </div>
+    </div>
+
+    <div class="card-group">
+        <div class="list-row">
+            <span class="label" data-i18n="volTitle">Volume tab khác</span>
+            <span id="volumeValue" class="value highlight">15%</span>
+        </div>
+        <input id="volume" type="range" min="0" max="100" step="1" value="15">
+        <div class="note">
+            <span data-i18n="volNote1">Khi target đang phát, các tab khác sẽ giảm còn</span> 
+            <span id="volumeNote" style="font-weight: 600;">15%</span> 
+            <span data-i18n="volNote2">âm lượng.</span>
+        </div>
+    </div>
+
+    <div class="card-group">
+        <div class="list-row">
+            <div>
+                <span class="label" data-i18n="sfxTitle">Sound Effects</span>
+                <div class="hint" data-i18n="sfxDesc">Connect / Disconnect + AirPods ANC SFX</div>
+            </div>
+            <label class="switch">
+                <input id="soundEffects" type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="list-row">
+            <div>
+                <span class="label" data-i18n="ancTitle">ANC Mode</span>
+                <div class="hint" data-i18n="ancDesc">Like Airpod Noise Cancellation</div>
+            </div>
+            <label class="switch">
+                <input id="audioBlur" type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="card-group custom-settings">
+        <div class="list-row custom-header" id="customToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="customPanel">
+            <div>
+                <span class="label" data-i18n="customTitle">Custom Settings</span>
+                <div class="hint" data-i18n="customDesc">Điều chỉnh chuyên sâu • dành cho người cần tinh chỉnh</div>
+            </div>
+            <div class="custom-header-actions">
+                <button id="resetSettings" class="custom-reset" type="button" title="Reset Settings" aria-label="Reset Settings">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 11a8 8 0 1 0 1 4"></path>
+                        <path d="M20 4v7h-7"></path>
+                    </svg>
+                </button>
+                <svg id="customChevron" class="custom-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </div>
+        </div>
+        <div id="customPanel" class="custom-panel" hidden>
+            <div class="custom-setting">
+                <div class="custom-line">
+                    <span data-i18n="duckFade">Duck fade</span>
+                    <span id="duckDurationValue" class="value highlight">1000 ms</span>
+                </div>
+                <input id="duckDuration" type="range" min="50" max="3000" step="50" value="1000">
+                <div class="hint" data-i18n="duckFadeDesc">Thời gian giảm âm tab khác.</div>
+            </div>
+
+            <div class="custom-setting">
+                <div class="custom-line">
+                    <span data-i18n="restoreFade">Restore fade</span>
+                    <span id="restoreDurationValue" class="value highlight">900 ms</span>
+                </div>
+                <input id="restoreDuration" type="range" min="50" max="3000" step="50" value="900">
+                <div class="hint" data-i18n="restoreFadeDesc">Thời gian khôi phục âm lượng.</div>
+            </div>
+
+            <div class="custom-setting">
+                <div class="custom-line">
+                    <span data-i18n="ancFreq">ANC frequency</span>
+                    <span id="blurFrequencyValue" class="value highlight">1800 Hz</span>
+                </div>
+                <input id="blurFrequency" type="range" min="100" max="22000" step="100" value="1800">
+                <div class="hint" data-i18n="ancFreqDesc">Thấp hơn = cách âm mạnh hơn.</div>
+            </div>
+
+            <div class="custom-setting">
+                <div class="custom-line">
+                    <span data-i18n="sfxDelay">SFX delay</span>
+                    <span id="sfxDelayValue" class="value highlight">500 ms</span>
+                </div>
+                <input id="sfxDelay" type="range" min="0" max="2000" step="50" value="500">
+                <div class="hint" data-i18n="sfxDelayDesc">Khoảng chờ trước khi phát SFX chuyển trạng thái.</div>
+            </div>
+
+            <div class="custom-setting">
+                <div class="custom-line">
+                    <span data-i18n="silenceThreshold">Silence threshold</span>
+                    <span id="silenceThresholdValue" class="value highlight">10 s</span>
+                </div>
+                <input id="silenceThreshold" type="range" min="1" max="60" step="1" value="10">
+                <div class="hint" data-i18n="silenceThresholdDesc">Thời gian im lặng liên tục trước khi chạy ANC-off SFX.</div>
+            </div>
+        </div>
+    </div>
+    <div class="note footer-note" data-i18n="footerNote">
+        Target luôn là tab đang active. Khi target có tiếng, các tab khác sẽ tự duck. Khi target hết tiếng, âm thanh được khôi phục.
+    </div>
+
+    <script src="popup.js"></script>
+    <script src="ui-enhancements.js"></script> </body>
+</html>
