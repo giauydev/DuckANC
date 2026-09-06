@@ -1,11 +1,23 @@
-
 [🇺🇸 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
+
 # DuckANC
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/48ba1f1c-0c53-42a4-9cfd-eb34328ee75d" width="45%">
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/c22eb904-72a0-4417-8fcf-b62b35dc48f4" width="45%">
+    </td>
+  </tr>
+</table>
 
 **Tự động giảm âm thanh từ các tab khác giúp bạn tập trung học tập và làm việc — với hiệu ứng ANC lấy cảm hứng từ AirPods.**
 
-DuckANC là extension dành cho Chrome, tự động giảm âm lượng của các tab trình duyệt khác khi tab bạn đang sử dụng bắt đầu phát âm thanh, giúp bạn tập trung trong học tập/công việc mà không cần tắt hoàn toàn các tab khác.
-p/s: Rất phù hợp cho những bạn vừa muốn nghe nhạc vừa có thể nghe giảng mà không bị sao lãng
+DuckANC là extension dành cho Chrome, tự động giảm âm lượng của các tab trình duyệt khác khi tab bạn đang sử dụng bắt đầu phát âm thanh, giúp bạn tập trung trong học tập và công việc mà không cần tắt hoàn toàn các tab khác.
+
+**P/S: Rất phù hợp cho những bạn vừa muốn nghe nhạc vừa có thể nghe giảng mà không bị sao lãng.**
 
 ## ✨ Tính năng
 
@@ -85,3 +97,4 @@ Xem file `LICENSE` để biết thông tin về giấy phép sử dụng.
 
 ---
 
+[🇺🇸 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
