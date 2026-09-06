@@ -1,3 +1,5 @@
+
+[🇺🇸 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
 # DuckANC
 
 **Tự động giảm âm thanh từ các tab khác giúp bạn tập trung học tập và làm việc — với hiệu ứng ANC lấy cảm hứng từ AirPods.**
@@ -83,4 +85,3 @@ Xem file `LICENSE` để biết thông tin về giấy phép sử dụng.
 
 ---
 
-[🇺🇸 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
