@@ -25,7 +25,8 @@ const DEFAULT_SETTINGS = {
     restoreDuration: 900,
 
     
-    silenceThreshold: 10
+    silenceThreshold: 10,
+    silenceRestoreVolume: 50
 };
 
 let settings = {
@@ -86,15 +87,24 @@ function scheduleLongSilenceSFX(tabId) {
                     return;
                 }
 
-                const played = await playAirPodsSFX("off");
+                await restoreAllTabsPartial(
+                    settings.silenceRestoreVolume,
+                    settings.restoreDuration
+                );
 
-                
                 if (token !== silenceToken || !settings.enabled) {
                     await restoreAllTabs(220);
                     return;
                 }
 
-                await restoreAllTabs(settings.restoreDuration);
+                const played = await playAirPodsSFX("off");
+
+
+                if (token !== silenceToken || !settings.enabled) {
+                    await restoreAllTabs(220);
+                    return;
+                }
+
                 if (played !== false) {
                     longSilenceSfxActive = true;
                 }
@@ -491,6 +501,39 @@ async function restoreAllTabs(duration = settings.restoreDuration) {
     modifiedTabs.clear();
 }
 
+async function restoreTabPartial(tabId, volumeRatio, duration = settings.restoreDuration) {
+    if (!modifiedTabs.has(tabId)) {
+        return;
+    }
+
+    await sendToTab(
+        tabId,
+        {
+            type: "RESTORE_PARTIAL",
+            volumeRatio:
+                clamp(Number(volumeRatio), 0, 100) / 100,
+            duration
+        }
+    );
+}
+
+async function restoreAllTabsPartial(volumeRatio, duration = settings.restoreDuration) {
+    const ids = [
+        ...modifiedTabs.keys()
+    ];
+
+    await Promise.all(
+        ids.map(id =>
+            restoreTabPartial(
+                id,
+                volumeRatio,
+                duration
+            )
+        )
+    );
+}
+
+
 
 
 
@@ -532,7 +575,7 @@ function updateState(reason = "unknown") {
                 
                 await restoreAllTabs(220);
                 scheduleLongSilenceSFX(newTargetId);
-            } else if (modifiedTabs.size > 0) {
+            } else if (modifiedTabs.size > 0 && !longSilenceSfxActive) {
                 await restoreAllTabs();
             }
             return;
@@ -817,7 +860,7 @@ chrome.runtime.onMessage.addListener(
                             message.blurFrequency
                         ),
                         100,
-                        22000
+                        1800
                     ),
 
                 duckDuration:
@@ -846,6 +889,13 @@ chrome.runtime.onMessage.addListener(
                         Number(message.silenceThreshold),
                         1,
                         60
+                    ),
+
+                silenceRestoreVolume:
+                    clamp(
+                        Number(message.silenceRestoreVolume),
+                        0,
+                        100
                     )
             };
 
@@ -938,6 +988,9 @@ chrome.runtime.onMessage.addListener(
 
                 silenceThreshold:
                     settings.silenceThreshold,
+
+                silenceRestoreVolume:
+                    settings.silenceRestoreVolume,
 
                 targetTabId:
                     activeTargetTabId,
