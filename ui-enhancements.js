@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             sfxDelayDesc: "Khoảng chờ trước khi phát SFX chuyển trạng thái.",
             silenceThreshold: "Ngưỡng im lặng",
             silenceThresholdDesc: "Thời gian im lặng liên tục trước khi chạy ANC-off SFX.",
-            silenceThresholdDesc: "Thời gian im lặng liên tục trước khi chạy ANC-off SFX.",
+            silenceRestoreVolume: "Âm lượng trước SFX",
+            silenceRestoreVolumeDesc: "Sau ngưỡng im lặng, âm lượng chỉ khôi phục đến mức này trước khi phát SFX.",
         supportMe: "Ủng hộ tớ 1 ly cà phê",
             footerNote: "Sử dụng tai nghe cho trải nghiệm tốt nhất"
         },
@@ -62,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
             sfxDelayDesc: "Delay before transition SFX plays.",
             silenceThreshold: "Silence threshold",
             silenceThresholdDesc: "Continuous silence before the ANC-off SFX plays.",
+            silenceRestoreVolume: "Volume before SFX",
+            silenceRestoreVolumeDesc: "After the silence threshold, volume only restores to this level before the SFX plays.",
         supportMe: "Buy me a coffee",
             footerNote: "Use headphones for the best experience"
         }
