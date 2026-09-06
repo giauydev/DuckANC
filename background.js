@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS = {
 
     
     
-    blurFrequency: 1800,
+    blurFrequency: 100,
 
     
     
@@ -87,10 +87,9 @@ function scheduleLongSilenceSFX(tabId) {
                     return;
                 }
 
-                await restoreAllTabsPartial(
-                    settings.silenceRestoreVolume,
-                    settings.restoreDuration
-                );
+                // The normal silence state is already partially restored.
+                // At the end of the silence threshold, fully restore before playing the SFX.
+                await restoreAllTabs(settings.restoreDuration);
 
                 if (token !== silenceToken || !settings.enabled) {
                     await restoreAllTabs(220);
@@ -573,7 +572,10 @@ function updateState(reason = "unknown") {
             if (targetPlaying) {
                 targetPlaying = false;
                 
-                await restoreAllTabs(220);
+                await restoreAllTabsPartial(
+                    settings.silenceRestoreVolume,
+                    settings.restoreDuration
+                );
                 scheduleLongSilenceSFX(newTargetId);
             } else if (modifiedTabs.size > 0 && !longSilenceSfxActive) {
                 await restoreAllTabs();
