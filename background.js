@@ -48,6 +48,7 @@ function getLongSilenceMs() {
 let silenceTimer = null;
 let silenceToken = 0;
 let longSilenceSfxActive = false;
+let partialSilenceRestoreActive = false;
 
 function clearSilenceTimer() {
     if (silenceTimer !== null) {
@@ -107,6 +108,7 @@ function scheduleLongSilenceSFX(tabId) {
                 if (played !== false) {
                     longSilenceSfxActive = true;
                 }
+                partialSilenceRestoreActive = false;
             } catch (error) {
                 console.warn("[Audio Ducking] Long-silence SFX failed:", error);
                 
@@ -563,6 +565,7 @@ function updateState(reason = "unknown") {
         if (targetChanged) {
             clearSilenceTimer();
             longSilenceSfxActive = false;
+            partialSilenceRestoreActive = false;
             await restoreAllTabs();
             activeTargetTabId = newTargetId;
             targetPlaying = false;
@@ -576,8 +579,9 @@ function updateState(reason = "unknown") {
                     settings.silenceRestoreVolume,
                     settings.restoreDuration
                 );
+                partialSilenceRestoreActive = true;
                 scheduleLongSilenceSFX(newTargetId);
-            } else if (modifiedTabs.size > 0 && !longSilenceSfxActive) {
+            } else if (modifiedTabs.size > 0 && !longSilenceSfxActive && !partialSilenceRestoreActive) {
                 await restoreAllTabs();
             }
             return;
