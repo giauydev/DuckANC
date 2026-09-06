@@ -411,13 +411,15 @@ async function duckTab(tab, options = {}) {
             volume:
                 settings.duckVolume / 100,
             duration:
-                settings.duckDuration,
+                options.instant ? 0 : settings.duckDuration,
             blur:
                 options.blur !== undefined
                     ? Boolean(options.blur)
                     : settings.audioBlur,
             blurFrequency:
-                settings.blurFrequency
+                settings.blurFrequency,
+            instant:
+                Boolean(options.instant)
         }
     );
 }
@@ -602,15 +604,28 @@ function updateState(reason = "unknown") {
         clearSilenceTimer();
 
         if (!targetPlaying) {
+            const resumedDuringShortSilence =
+                partialSilenceRestoreActive &&
+                !longSilenceSfxActive;
+
             targetPlaying = true;
 
-            
+
             if (longSilenceSfxActive) {
                 await playAirPodsSFX("on");
                 longSilenceSfxActive = false;
                 await new Promise(resolve =>
                     setTimeout(resolve, clamp(settings.sfxDelay, 0, 2000))
                 );
+            }
+
+            partialSilenceRestoreActive = false;
+
+            // Audio returned before the 10s silence timer:
+            // immediately duck volume + blur again, without easing either one.
+            if (resumedDuringShortSilence) {
+                await duckAllTabs({ instant: true });
+                return;
             }
         }
 
