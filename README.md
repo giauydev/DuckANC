@@ -3,6 +3,7 @@
 **Automatically reduce audio from other tabs and stay focused on studying and working — with an AirPods-style ANC effect.**
 
 DuckANC is a Chrome extension that automatically reduces the volume of other browser tabs when your active tab starts playing audio, helping you stay focused without completely muting your other tabs.
+**P/S: Perfect for those who want to listen to music while still being able to hear lectures without getting distracted.**
 
 ## ✨ Features
 
