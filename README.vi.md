@@ -2,7 +2,8 @@
 
 **Tự động giảm âm thanh từ các tab khác giúp bạn tập trung học tập và làm việc — với hiệu ứng ANC lấy cảm hứng từ AirPods.**
 
-DuckANC là extension dành cho Chrome, tự động giảm âm lượng của các tab trình duyệt khác khi tab bạn đang sử dụng bắt đầu phát âm thanh, giúp bạn tập trung mà không cần tắt hoàn toàn các tab khác.
+DuckANC là extension dành cho Chrome, tự động giảm âm lượng của các tab trình duyệt khác khi tab bạn đang sử dụng bắt đầu phát âm thanh, giúp bạn tập trung trong học tập/công việc mà không cần tắt hoàn toàn các tab khác.
+p/s: Rất phù hợp cho những bạn vừa muốn nghe nhạc vừa có thể nghe giảng mà không bị sao lãng
 
 ## ✨ Tính năng
 
